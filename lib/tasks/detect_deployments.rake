@@ -1,3 +1,5 @@
+include ActionView::Helpers::DateHelper
+
 POLL_INTERVAL_SECONDS=5
 
 def fetch_current_sha(app)
@@ -41,6 +43,21 @@ def github_link_mrkdwn(app, current_sha)
   end
 end
 
+def fetch_commit_authored_date(app, current_sha)
+  commit_url =  "https://api.github.com/repos/#{app.github_slug}/commits/#{current_sha}"
+  response = Faraday.get(commit_url)
+  object = JSON.parse(response.body)
+
+  return DateTime.parse(object["commit"]["author"]["date"])
+end
+
+def commit_authored_description(app, current_sha)
+  return "" unless app.github_slug
+
+  authored_date = fetch_commit_authored_date(app, current_sha)
+  return "(commit authored #{time_ago_in_words(authored_date)} ago, at #{authored_date})"
+end
+
 namespace :detect_deployments do
   task :run => :environment do
     loop do
@@ -53,7 +70,7 @@ namespace :detect_deployments do
 
         now = Time.now
         if is_new_version
-          message = "#{app.last_detected_git_sha ? "New" : "Initial"} version #{github_link_mrkdwn(app, current_sha)} has been deployed"
+          message = "#{app.last_detected_git_sha ? "New" : "Initial"} version #{github_link_mrkdwn(app, current_sha)} has been deployed #{commit_authored_description(app, current_sha)}"
           puts message
           post_to_slack("*#{app.name}*: #{message}.")
           app.update!(last_detected_git_sha: current_sha, first_detected_at: now)
