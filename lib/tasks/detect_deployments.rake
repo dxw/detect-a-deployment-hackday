@@ -13,6 +13,25 @@ def format_time(time)
   time.to_time.iso8601
 end
 
+def post_to_slack(message)
+  puts "Posting to Slack"
+  slack_channel = "test-detect-deployment-hackday"
+  username = "DeploymentDetectionBot"
+  slack_url = ENV["SLACK_WEBHOOK_URL"]
+
+  raise "You need to set SLACK_WEBHOOK_URL" unless slack_url.present?
+
+  body = {
+    channel: slack_channel,
+    username: username,
+    unfurl_links: false,
+    mrkdwn: true,
+    text: message
+  }
+
+  response = Faraday.post(slack_url, body.to_json)
+end
+
 namespace :detect_deployments do
   task :run => :environment do
     loop do
@@ -25,7 +44,9 @@ namespace :detect_deployments do
 
         now = Time.now
         if is_new_version
-          puts "  #{app.last_detected_git_sha ? "New" : "Initial"} version #{current_sha} detected at #{format_time(now)}. "
+          message = "#{app.last_detected_git_sha ? "New" : "Initial"} version `#{current_sha}` has been deployed"
+          puts message
+          post_to_slack("*#{app.name}*: #{message}.")
           app.update!(last_detected_git_sha: current_sha, first_detected_at: now)
         else
           puts "  Current version is still #{current_sha} (first detected at #{format_time(app.first_detected_at)})."
