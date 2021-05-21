@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  healthcheck_url: MyString
+  last_detected_git_sha: MyString
+  first_detected_at: 2021-05-21 14:01:36
+
+two:
+  name: MyString
+  healthcheck_url: MyString
+  last_detected_git_sha: MyString
+  first_detected_at: 2021-05-21 14:01:36
