@@ -55,7 +55,10 @@ def commit_authored_description(app, current_sha)
   return "" unless app.github_slug
 
   authored_date = fetch_commit_authored_date(app, current_sha)
-  return "(commit authored #{time_ago_in_words(authored_date)} ago, at #{authored_date})"
+
+  mrkdwn_date = "<!date^#{authored_date.to_i}^{date_short} at {time}|#{authored_date}>"
+
+  return "(commit authored #{time_ago_in_words(authored_date)} ago, on #{mrkdwn_date})"
 end
 
 namespace :detect_deployments do
