@@ -6,4 +6,4 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 App.create!(name: "Example local web server", healthcheck_url: "http://localhost:8080/health.json")
-App.create!(name: "BEIS RODA staging", healthcheck_url: "https://staging.report-official-development-assistance.service.gov.uk/health_check")
+App.create!(name: "BEIS RODA staging", healthcheck_url: "https://staging.report-official-development-assistance.service.gov.uk/health_check", github_slug: "UKGovernmentBEIS/beis-report-official-development-assistance")

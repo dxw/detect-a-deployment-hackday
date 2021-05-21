@@ -32,6 +32,15 @@ def post_to_slack(message)
   response = Faraday.post(slack_url, body.to_json)
 end
 
+def github_link_mrkdwn(app, current_sha)
+  if app.github_slug
+    commit_url =  "https://github.com/#{app.github_slug}/commit/#{current_sha}"
+    "<#{commit_url}|`#{current_sha}`>"
+  else
+    "`#{current_sha}`"
+  end
+end
+
 namespace :detect_deployments do
   task :run => :environment do
     loop do
@@ -44,7 +53,7 @@ namespace :detect_deployments do
 
         now = Time.now
         if is_new_version
-          message = "#{app.last_detected_git_sha ? "New" : "Initial"} version `#{current_sha}` has been deployed"
+          message = "#{app.last_detected_git_sha ? "New" : "Initial"} version #{github_link_mrkdwn(app, current_sha)} has been deployed"
           puts message
           post_to_slack("*#{app.name}*: #{message}.")
           app.update!(last_detected_git_sha: current_sha, first_detected_at: now)
